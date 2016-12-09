@@ -1,0 +1,42 @@
+version: '2'
+
+services:
+  iog-mediawiki-mysql:
+    image: mysql:latest
+    hostname: iog-mediawiki-mysql
+    ports:
+      - "**MYSQL_PORT**:3306"
+    volumes:
+      - iog-mediawiki-mysql-data:/var/lib/mysql
+      - iog-mediawiki-mysql-log:/var/log
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=**ROOT_MYSQL_PASSWORD**
+      - MYSQL_DATABASE=mediawiki
+      - MYSQL_USER=mediawiki
+      - MYSQL_PASSWORD=**MYSQL_PASSWORD**
+
+  iog-mediawiki:
+    depends_on:
+      - iog-mediawiki-mysql
+    build: "1.28"
+    hostname: iog-mediawiki
+    ports:
+      - "**HTTP_PORT**:80"
+    volumes:
+      - iog-mediawiki-data:/var/www/html
+      - iog-mediawiki-log:/var/log
+    links:
+      - iog-mediawiki-mysql
+    restart: always
+    environment:
+      - MEDIAWIKI_DB_HOST=iog-mediawiki-mysql
+      - MEDIAWIKI_DB_NAME=mediawiki
+      - MEDIAWIKI_DB_USER=mediawiki
+      - MEDIAWIKI_DB_PASSWORD=**MYSQL_PASSWORD**
+
+volumes:
+  iog-mediawiki-mysql-data:
+  iog-mediawiki-mysql-log:
+  iog-mediawiki-data:
+  iog-mediawiki-log:
